@@ -1,6 +1,10 @@
 package com.example.sunrisealarm20;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,20 +26,22 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
-    int sunriseHour = 7;
-    int sunriseMinute = 32;
     Alarm alarm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         this.getLocation();
-        alarm = new Alarm(sunriseHour, sunriseMinute, "0", true);
 
-        TextView textView = findViewById(R.id.alarm_time);
-        textView.setText(alarm.formatTime());
+        //TimePickers
+        NumberPicker before_picker = findViewById(R.id.before_selector);
+        before_picker.setMinValue(0);
+        before_picker.setMaxValue(30);
+
+        NumberPicker after_picker = findViewById(R.id.after_selector);
+        after_picker.setMinValue(0);
+        after_picker.setMaxValue(30);
 
         //Buttons & Switch
         Button change_button = findViewById(R.id.change_button);
@@ -48,13 +54,32 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         SwitchCompat switch1 = findViewById(R.id.switch1);
+        Intent myintent = new Intent(MainActivity.this, notificationService.class);
+
         switch1.setOnClickListener(v -> {
-            alarm.isRecurring = switch1.isActivated();
+            if(!alarm.active){
+                Log.d("DEFAULT", "SERVICE SHOULD BE STARTED" + alarm.formatTime());
+                myintent.putExtra("Unix", alarm.time_to_mili());
+                myintent.putExtra("cmd", "Start");
+                myintent.putExtra("AlarmTime", alarm.formatTime());
+                this.startForegroundService(myintent);
+            }
+            else {
+                myintent.putExtra("cmd", "Stop");
+                this.startForegroundService(myintent);
+            }
+            alarm.active = switch1.isChecked();
+            Log.d("DEFAULT", "STATUS: " + alarm.active);
+            //Start Alarm Activity
         });
         Button locationButton = findViewById(R.id.location_button);
         locationButton.setOnClickListener(v -> {
             Toast.makeText(MainActivity.this, "Try reopening the app after using location services in another app", Toast.LENGTH_LONG).show();
         });
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1);
+        }
     }
 
     private void setAlert() {
@@ -64,12 +89,11 @@ public class MainActivity extends AppCompatActivity {
 
         builder.setPositiveButton("Yes", (dialog, which) -> {
             //do Work to Schedule Alarm
-
+            TextView tv = findViewById(R.id.alarm_time);
+            tv.setText(alarm.formatTime());
             dialog.cancel();
         });
         builder.setNegativeButton("No", (dialog, which) -> {
-            alarm.minute = sunriseMinute;
-            alarm.hour = sunriseHour;
             dialog.cancel();
         });
         AlertDialog alertDialog = builder.create();
@@ -77,7 +101,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setCustom() {
-
+        alarm.hour = alarm.sunrise_hour;
+        alarm.minute = alarm.sunrise_minute;
         NumberPicker numberPicker = findViewById(R.id.before_selector);
         int beforeSunrise = numberPicker.getValue();
         NumberPicker numberPicker2 = findViewById(R.id.after_selector);
@@ -91,12 +116,13 @@ public class MainActivity extends AppCompatActivity {
         }
         if (alarm.minute + afterSunrise >= 60) {
             alarm.minute = alarm.minute + afterSunrise - 60;
+            alarm.hour++;
         } else {
             alarm.minute = alarm.minute + afterSunrise;
         }
     }
     public void getLocation() {
-        final Location[] currentLocation = {null};
+        Log.d("DEFAULT", "getLocationCalled");
         ActivityResultLauncher<String[]> locationPermissionRequest =
                 registerForActivityResult(new ActivityResultContracts
                                 .RequestMultiplePermissions(), result -> {
@@ -143,7 +169,14 @@ public class MainActivity extends AppCompatActivity {
         TextView textView = findViewById(R.id.time_zone);
         textView.setText(currentLocation.timezone.getDisplayName());
         TextView otherTV = findViewById(R.id.sunrise_time);
-        otherTV.setText(currentLocation.getNextSunrise());
-    }
+        String nextSunrise = currentLocation.getNextSunrise();
+        Log.d("DEFAULT", "SUNRISE IN SAVE LOCATION" + nextSunrise);
+        otherTV.setText(nextSunrise);
 
+        // Handle setting sunrise
+        Log.d("DEFAULT", "Sunrise: " + nextSunrise);
+        alarm = new Alarm(nextSunrise);
+        TextView TV = findViewById(R.id.alarm_time);
+        TV.setText(alarm.formatTime());
+    }
 }

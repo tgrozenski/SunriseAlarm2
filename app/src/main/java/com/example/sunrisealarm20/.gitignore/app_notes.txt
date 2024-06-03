@@ -1,0 +1,4 @@
+		App Notes
+	- Implement a Ring class of some sort called by the Notification Service 
+	- Try to move location privilages into App class
+	- Set up alarmScreen with a button to cancel the alarm, handle rescheduling alarm for the next day

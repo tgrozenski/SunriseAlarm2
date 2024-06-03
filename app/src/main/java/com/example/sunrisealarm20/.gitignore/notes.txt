@@ -1,0 +1,6 @@
+		App Notes
+
+	- Create an Alarm service to ring
+	- Make broadcast reciever
+	- Use Notification Service Binding 
+	
