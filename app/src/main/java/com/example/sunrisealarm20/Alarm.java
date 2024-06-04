@@ -10,17 +10,15 @@ class Alarm {
    int sunrise_hour;
    int sunrise_minute;
    boolean active;
-   double unix;
+   Long unix;
    //Constructor
     public Alarm(String sunrise) {
         string_to_time(sunrise);
     }
-    public double time_to_mili() {
+    public Long time_to_mili() {
         Calendar calendar = Calendar.getInstance();
         long current = ((calendar.get(Calendar.HOUR_OF_DAY) * 60) + calendar.get(Calendar.MINUTE)) * 60000;
         long timeinmil = ((long) this.hour * 60 + (long) this.minute) * 60000;
-        Log.d("Buttons", timeinmil + "<-time in milliseconds");
-        Log.d("Buttons", current + "<-current time");
         if (timeinmil > current) {
             unix = timeinmil - current;
         }
@@ -38,7 +36,7 @@ class Alarm {
                 time = hour + ":" + minute;
             }
         }
-        return time;
+        return time + " AM";
     }
     public void string_to_time(String officialSunrise) {
         char[] arr = officialSunrise.toCharArray();

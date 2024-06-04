@@ -1,6 +1,5 @@
 		App Notes
 
-	- Create an Alarm service to ring
-	- Make broadcast reciever
-	- Use Notification Service Binding 
-	
+	- Handle Rescheduling on Alarm Completion
+	- test vibrator on physical device
+	- Write the Readme 	
