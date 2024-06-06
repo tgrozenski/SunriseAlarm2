@@ -10,15 +10,15 @@ class Alarm {
    int sunrise_hour;
    int sunrise_minute;
    boolean active;
-   Long unix;
    //Constructor
     public Alarm(String sunrise) {
         string_to_time(sunrise);
     }
-    public Long time_to_mili() {
+    public Long time_to_mili(int currenthour, int currentminute) {
+        Long unix;
         Calendar calendar = Calendar.getInstance();
         long current = ((calendar.get(Calendar.HOUR_OF_DAY) * 60) + calendar.get(Calendar.MINUTE)) * 60000;
-        long timeinmil = ((long) this.hour * 60 + (long) this.minute) * 60000;
+        long timeinmil = ((long) currenthour * 60 + (long) currentminute) * 60000;
         if (timeinmil > current) {
             unix = timeinmil - current;
         }

@@ -75,8 +75,12 @@ public class MainActivity extends AppCompatActivity {
         switch1.setOnClickListener(v -> {
             if(!alarm.active){
                 alarm.active = true;
-                Log.d("DEFAULT", "SERVICE SHOULD BE STARTED" + alarm.formatTime());
-                myintent.putExtra("Unix", alarm.time_to_mili());
+                String alarmTime = alarm.formatTime();
+                Log.d("DEFAULT", "SERVICE SHOULD BE STARTED" + alarmTime);
+                alarm.string_to_time("0" + alarmTime);
+                long unix =  alarm.time_to_mili(alarm.hour, alarm.minute) + System.currentTimeMillis();
+                Log.d("DEFAULT", "TIME --> " + alarm.hour + alarm.minute + "MILI " + unix);
+                myintent.putExtra("Unix", unix);
                 myintent.putExtra("cmd", "Start");
                 myintent.putExtra("AlarmTime", alarm.formatTime());
                 this.startForegroundService(myintent);

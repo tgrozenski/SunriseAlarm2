@@ -25,7 +25,7 @@ public class notificationService extends Service {
         if(Objects.equals(cmd, "Start")) {
             Long unix = intent.getLongExtra("Unix", 0);
             String alarmTime = intent.getStringExtra("AlarmTime");
-            Log.d("DEFAULT", "Service has been started!");
+            Log.d("DEFAULT", "Service has been started! " + alarmTime);
 
             //set intent for alarm screen from notification
             Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
@@ -65,8 +65,7 @@ public class notificationService extends Service {
 
         //cancel any previous alarm set
         alarmmanager.cancel(pendingintent);
-
-            Log.d("DEFAULT", "time to mili:" + unix + " Current Time" + System.currentTimeMillis());
+            Log.d("DEFAULT", "Trigger Time --> " + unix);
                 if (alarmmanager.canScheduleExactAlarms()) {
                     Log.d("DEFAULT", "ALARM Should b3 scheduled! " + unix + " Current Time" + System.currentTimeMillis());
                     alarmmanager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, unix, pendingintent);
