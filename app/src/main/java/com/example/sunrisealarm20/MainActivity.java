@@ -2,9 +2,6 @@ package com.example.sunrisealarm20;
 
 import android.Manifest;
 import android.app.AlarmManager;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,7 +13,6 @@ import android.widget.NumberPicker;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.SwitchCompat;
-
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
@@ -25,13 +21,15 @@ import androidx.core.app.ActivityCompat;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
-
 import java.util.TimeZone;
 
 public class MainActivity extends AppCompatActivity {
     Alarm alarm;
     SwitchCompat switch1;
     Intent myintent;
+    int state;
+    Button change_button;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
 
         Intent stopService= new Intent(getApplicationContext(), ringEvent.class);
         stopService(stopService);
+
 
         //TimePickers
         NumberPicker before_picker = findViewById(R.id.before_selector);
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
             this.startActivity(intent);
         });
 
-        Button change_button = findViewById(R.id.change_button);
+        change_button = findViewById(R.id.change_button);
         change_button.setOnClickListener(v -> {
             try {
                 this.setCustom();
@@ -87,13 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 myintent.putExtra("cmd", "Stop");
                 this.startForegroundService(myintent);
             }
-            alarm.active = switch1.isChecked();
-            Log.d("DEFAULT", "STATUS: " + alarm.active);
-            //Start Alarm Activity
-        });
-        Button locationButton = findViewById(R.id.location_button);
-        locationButton.setOnClickListener(v -> {
-            Toast.makeText(MainActivity.this, "Try reopening the app after using location services in another app", Toast.LENGTH_LONG).show();
+            switch1.setChecked(alarm.active);
         });
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -101,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
         }
             AlarmManager alarmmanager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
-        if(alarmmanager.canScheduleExactAlarms() == false)  {
+        if(!alarmmanager.canScheduleExactAlarms())  {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SCHEDULE_EXACT_ALARM}, 1);
             Intent intent = new Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
             intent.setData(Uri.fromParts("package", getPackageName(), null));
@@ -115,19 +108,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void setAlert() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Are You Sure You Want to change to " + alarm.formatTime());
+        builder.setMessage("Schedule For " + alarm.formatTime() + "?");
         builder.setTitle("Alert!");
 
         builder.setNegativeButton("No", (dialog, which) -> {
             dialog.cancel();
         });
         builder.setPositiveButton("Yes", (dialog, which) -> {
-            //do Work to Schedule Alarm
             alarm.active = false;
             stopService(myintent);
-            switch1.setChecked(false);
-
-            Toast.makeText(MainActivity.this, "Please Reset the Switch Confirm your Changes", Toast.LENGTH_SHORT).show();
+            switch1.performClick();
             TextView tv = findViewById(R.id.alarm_time);
             tv.setText(alarm.formatTime());
             dialog.cancel();
@@ -214,5 +204,19 @@ public class MainActivity extends AppCompatActivity {
         alarm = new Alarm(nextSunrise);
         TextView TV = findViewById(R.id.alarm_time);
         TV.setText(alarm.formatTime());
+
+        //Check for Destination
+        Bundle bundle = getIntent().getExtras();
+        state = 0;
+        if (bundle != null) {
+            state = bundle.getInt("State");
+            Log.d("DEFAULT", "State" + bundle);
+        }
+        if (state == 1) {
+            alarm.active = false;
+            switch1.performClick();
+            state = 0;
+//        }
+        }
     }
 }

@@ -1,5 +1,4 @@
 		App Notes
 
-	- Handle Rescheduling on Alarm Completion
 	- test vibrator on physical device
 	- Write the Readme 	

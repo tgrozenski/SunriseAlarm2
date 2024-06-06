@@ -12,13 +12,16 @@ public class AlarmScreen extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.alarm_screen_layout);
 
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        Intent intent = new Intent(AlarmScreen.this, MainActivity.class);
+        intent.putExtra("State", 1);
+
         Button stop = findViewById(R.id.stop_sound);
         stop.setOnClickListener(v->{
             //logic here for stopping the service
             Intent serviceInt = new Intent(getApplicationContext(), ringEvent.class);
             stopService(serviceInt);
-           this.startActivity(intent);
+
+            this.startActivity(intent);
         });
 
     }

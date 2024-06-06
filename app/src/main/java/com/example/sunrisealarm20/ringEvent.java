@@ -40,7 +40,7 @@ public class ringEvent extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
+        Intent intent1 = new Intent(getApplicationContext(), AlarmScreen.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent1, PendingIntent.FLAG_IMMUTABLE);
 
@@ -48,7 +48,7 @@ public class ringEvent extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.alarm_icon)
                 .setContentTitle("Good Morning")
-                .setContentText("Click the Notification or Button to Silence the Alarm")
+                .setContentText("Click the Button to Silence the Alarm")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
